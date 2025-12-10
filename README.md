@@ -140,13 +140,13 @@ Example output:
 [0.625 4 2]
 ```
 
-## Using This Code for Your Own Project
+## Extensibility
 
-This simulator is designed to be extensible and customizable. Here are ways you can adapt it for your needs:
+The simulator's architecture allows for various modifications and enhancements:
 
 ### 1. Custom Service Time Distributions
 
-Replace `DefaultServiceTime` with your own implementation:
+Replace `DefaultServiceTime` with custom implementations:
 
 ```java
 // Create a custom service time supplier
