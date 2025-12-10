@@ -99,7 +99,3 @@ java Main
 ## Requirements
 
 - Java 11 or higher (uses Java Streams and functional interfaces)
-
-## License
-
-This project is part of an academic assignment.
