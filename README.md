@@ -96,6 +96,174 @@ java Main < input.txt
 java Main
 ```
 
+## Testing
+
+To test the simulator, create an input file or provide input directly. Here's an example test case:
+
+**Example Input (`test.txt`):**
+```
+2
+1
+6
+1 0.000
+2 0.500
+3 1.000
+4 1.200
+5 1.500
+6 2.000
+```
+
+**Run the test:**
+```bash
+javac *.java
+java Main < test.txt
+```
+
+**Expected Output:**
+The simulator will output a chronological event log showing:
+- Customer arrivals
+- Service start times
+- Queue waiting events
+- Service completion
+- Customers leaving (if queue is full)
+- Final statistics: `[average_waiting_time customers_served customers_left]`
+
+Example output:
+```
+0.000 customer 1 arrives
+0.000 customer 1 serves by server 1
+0.500 customer 2 arrives
+0.500 customer 2 waits at server 1
+1.000 customer 1 done
+1.000 customer 2 serves by server 1
+...
+[0.625 4 2]
+```
+
+## Using This Code for Your Own Project
+
+This simulator is designed to be extensible and customizable. Here are ways you can adapt it for your needs:
+
+### 1. Custom Service Time Distributions
+
+Replace `DefaultServiceTime` with your own implementation:
+
+```java
+// Create a custom service time supplier
+Supplier<Double> customServiceTime = () -> {
+    // Your custom logic here
+    // Example: Exponential distribution
+    return -Math.log(Math.random()) * meanServiceTime;
+};
+
+// Use it in the simulator
+Simulator sim = new Simulator(numServers, qmax, customServiceTime, 
+                              numCustomers, arrivals);
+```
+
+### 2. Adding New Event Types
+
+Extend the `Event` class to create custom events:
+
+```java
+class CustomEvent extends Event {
+    CustomEvent(Customer customer, double eventTime) {
+        super(eventTime, customer);
+    }
+    
+    @Override
+    public String toString() {
+        return String.format("%.3f %s custom action", 
+                            this.eventTime, this.customer);
+    }
+    
+    @Override
+    Optional<Pair<Event, Shop>> next(Shop shop) {
+        // Your custom logic
+        return Optional.of(new Pair<>(this, shop));
+    }
+    
+    @Override
+    Statistics update(Statistics statistics) {
+        // Update statistics as needed
+        return statistics;
+    }
+}
+```
+
+### 3. Custom Statistics Tracking
+
+Modify the `Statistics` class to track additional metrics:
+
+```java
+class ExtendedStatistics extends Statistics {
+    private final int customMetric;
+    
+    // Add methods to track your custom metrics
+    ExtendedStatistics addCustomMetric(int value) {
+        return new ExtendedStatistics(..., value);
+    }
+}
+```
+
+### 4. Different Queue Policies
+
+Modify `Shop.java` and `Server.java` to implement different queueing strategies:
+- Priority queues (by customer type, VIP status, etc.)
+- Round-robin server selection
+- Load balancing algorithms
+- Multiple queue types (express lanes, etc.)
+
+### 5. Real-Time Visualization
+
+Integrate the simulator with visualization libraries:
+- Connect event outputs to a GUI framework (JavaFX, Swing)
+- Export events to CSV/JSON for external analysis
+- Create real-time dashboards showing queue states
+
+### 6. Integration with External Systems
+
+- Connect to databases to log events
+- Use as a backend for web applications
+- Integrate with monitoring systems
+- Export results to analytics platforms
+
+### 7. Performance Optimization
+
+For large-scale simulations:
+- Implement parallel processing for multiple simulation runs
+- Add caching mechanisms for repeated calculations
+- Optimize the priority queue for your specific use case
+- Use profiling tools to identify bottlenecks
+
+### Example: Bank Teller Simulation
+
+```java
+// Customize for bank scenario
+int numTellers = 5;
+int maxQueueLength = 10;
+Supplier<Double> bankServiceTime = () -> {
+    // Normal distribution for service time
+    return normalDistribution(mean: 3.0, stdDev: 0.5);
+};
+
+// Run simulation with bank-specific parameters
+Simulator bankSim = new Simulator(numTellers, maxQueueLength, 
+                                  bankServiceTime, customers, arrivals);
+```
+
+### Example: Restaurant Service Simulation
+
+```java
+// Different service times for different customer types
+Supplier<Double> restaurantServiceTime = () -> {
+    if (customer.isVIP()) {
+        return 2.0; // Faster service for VIP
+    }
+    return 5.0; // Standard service time
+};
+```
+
 ## Requirements
 
 - Java 11 or higher (uses Java Streams and functional interfaces)
